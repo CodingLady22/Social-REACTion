@@ -8,6 +8,8 @@ import helmet from "helmet";
 import morgan from "morgan";
 import path from "path"; //native to node
 import { fileURLToPath } from "url"; // will allow us properly set the paths when we configure directories
+import authRoutes from "./routes/auth.js";
+import { register } from "./controllers/auth.js";
 
 // * CONFIGURATIONS
 const __filename = fileURLToPath(import.meta.url); // used to grab the file url only when using "type": "module" to get directory name
@@ -37,7 +39,14 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage }); // var to upload files anytime 
 
-// *MONGOOSE SETUP
+//* ROUTES WITH FILES
+// The full routes used here need access the 'upload' var above to upload files/images. 
+app.post("/auth/register", upload.single("picture"), register); 
+
+//* ROUTES
+app.use("/auth", authRoutes)
+
+//* MONGOOSE SETUP
 const PORT = process.env.PORT || 6001;
 mongoose.connect(process.env.DB_STRING, {
     useNewUrlParser: true,
