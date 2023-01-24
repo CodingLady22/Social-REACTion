@@ -9,13 +9,19 @@ import morgan from "morgan";
 import path from "path"; //native to node
 import { fileURLToPath } from "url"; // will allow us properly set the paths when we configure directories
 import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/users.js";
+import postRoutes from "./routes/posts.js";
 import { register } from "./controllers/auth.js";
+import { createPost } from "./controllers/posts.js";
+import { verifyToken } from "./middleware/auth.js";
 
 //* CONFIGURATIONS
 const __filename = fileURLToPath(import.meta.url); // used to grab the file url only when using "type": "module" to get directory name
 const __dirname = path.dirname(__filename);
 
 dotenv.config();
+// dotenv.config(
+// {path: './.env'});
 const app = express();
 
 // Middleware
@@ -42,14 +48,18 @@ const upload = multer({ storage }); // var to upload files anytime
 //* ROUTES WITH FILES
 // The full routes used here need access the 'upload' var above to upload files/images. 
 app.post("/auth/register", upload.single("picture"), register); 
+app.post("/posts", verifyToken, upload.single("picture"), createPost); 
 
 //* ROUTES
-app.use("/auth", authRoutes)
+app.use("/auth", authRoutes);
+app.use("/users", userRoutes)
+app.use("/posts", postRoutes)
 
 //* MONGOOSE SETUP
+console.log(process.env.DB_STRING);
 const PORT = process.env.PORT || 6001;
 mongoose.connect(process.env.DB_STRING, {
-    useNewUrlParser: true,
+    // useNewUrlParser: true,
     useUnifiedTopology: true,
 }).then(() => {
     app.listen(PORT, () => console.log(`Server is : ${PORT}`));
