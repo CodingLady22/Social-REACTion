@@ -14,6 +14,9 @@ import postRoutes from "./routes/posts.js";
 import { register } from "./controllers/auth.js";
 import { createPost } from "./controllers/posts.js";
 import { verifyToken } from "./middleware/auth.js";
+import User from "./models/User.js";
+import Post from "./models/Post.js";
+import { users, posts } from "./data/index.js"
 
 //* CONFIGURATIONS
 const __filename = fileURLToPath(import.meta.url); // used to grab the file url only when using "type": "module" to get directory name
@@ -59,8 +62,13 @@ app.use("/posts", postRoutes)
 console.log(process.env.DB_STRING);
 const PORT = process.env.PORT || 6001;
 mongoose.connect(process.env.DB_STRING, {
-    // useNewUrlParser: true,
+    useNewUrlParser: true,
     useUnifiedTopology: true,
 }).then(() => {
     app.listen(PORT, () => console.log(`Server is : ${PORT}`));
+
+    //* ADD DATA ONE TIME 
+    //! It will duplicate data as you continue to save so comment out after 1st used
+    // User.insertMany(users);
+    // Post.insertMany(posts);
 }).catch((error) => console.log(`${error} did not connect`))
